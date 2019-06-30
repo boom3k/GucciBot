@@ -1,11 +1,13 @@
 package com.boom3k.guccibot;
 
+import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedReader;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 public class Main {
 
@@ -20,7 +22,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         //Bot.initializeClient();
-        Rest.sendGet();
+
+
     }
 
     static void explainReact() {

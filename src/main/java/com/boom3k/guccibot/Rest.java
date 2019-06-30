@@ -1,59 +1,52 @@
 package com.boom3k.guccibot;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.Key;
+import java.util.List;
+import java.util.Map;
 
 public class Rest {
 
-        final static String USER_AGENT = "Mozilla/5.0";
+    final static String USER_AGENT = "Mozilla/5.0";
 
-        // HTTP GET request
-        static void sendGet() throws Exception {
+    // HTTP GET request
+    public static JsonObject sendGet(String url, Map<String, String> parameters) throws Exception {
 
-            String discord_Client_ID = Bot.TOKENFILE.get("discord_client_id").getAsString();
-            String url = "https://api.twitch.tv/kraken/streams/shroud?client_id=" + discord_Client_ID;
-
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            // optional default is GET
-            con.setRequestMethod("GET");
-
-            //add request header
-            con.setRequestProperty("User-Agent", USER_AGENT);
-
-           JsonObject response = getResponse(con);
-
-           Twitch twitch = new Twitch(response);
-           System.out.println(response);
-
+        if(parameters != null) {
+            //Step through map and get key and values to append to url
+            for (int i = 0; i < parameters.keySet().size(); i++) {
+                String currentKey = (String) parameters.keySet().toArray()[i];
+                url += "?" + currentKey + "=" + parameters.get(currentKey);
+            }
         }
 
-        // HTTP POST request
+        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", USER_AGENT);
+        return getResponse(con);
+    }
 
-        static JsonObject getResponse(HttpURLConnection httpURLConnection) throws IOException {
-            int responseCode = httpURLConnection.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + httpURLConnection.getURL());
-            System.out.println("Response Code : " + responseCode);
+    static JsonObject getResponse(HttpURLConnection httpURLConnection) throws IOException {
+        int responseCode = httpURLConnection.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + httpURLConnection.getURL());
+        System.out.println("Response Code : " + responseCode);
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(httpURLConnection.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
+        BufferedReader in = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            return (JsonObject) new JsonParser().parse(response.toString()); }
-
-
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        return (JsonObject) new JsonParser().parse(response.toString());
+    }
 }

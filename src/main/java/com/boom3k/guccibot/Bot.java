@@ -11,33 +11,14 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class Bot {
 
-    Logger logger = Logger.getLogger(Bot.class);
+    static Logger logger = Logger.getLogger(Bot.class);
+    final static JsonObject TOKENFILE = getTokenFile();
 
-    static {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        System.setProperty("appname", Bot.class.getName());
-        System.setProperty("current.date.time", dateFormat.format(new Date()));
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
-
-        DiscordClient bot = initializeClient();
-
-
-
-    }
-
-    static DiscordClient initializeClient() throws FileNotFoundException {
-        JsonObject tokenJson = Utilities.getJsonObject(new File("token.json"));
-        DiscordClientBuilder builder = new DiscordClientBuilder(tokenJson.get("token").getAsString());
-        DiscordClient client = builder.build();
+    static void initializeClient() {
+        DiscordClient client = new DiscordClientBuilder(TOKENFILE.get("token").getAsString()).build();
 
         client.getEventDispatcher().on(ReadyEvent.class)
                 .subscribe(event -> {
@@ -45,16 +26,66 @@ public class Bot {
                     System.out.println("Logged in as: " + self.getUsername());
                 });
 
-        client.getEventDispatcher().on(MessageCreateEvent.class)
-                .map(MessageCreateEvent::getMessage)
-                .filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
-                .filter(message -> message.getContent().orElse("").equalsIgnoreCase("!ping"))
-                .flatMap(Message::getChannel)
-                .flatMap(channel -> channel.createMessage("Pong!"))
-                .subscribe();
+        respond(client, "!dog", "https://www.mail-signatures.com/wp-content/uploads/2019/02/How-to-find-direct-link-to-image_Blog-Picture.png");
 
         client.login().block();
-        return client;
+    }
+
+    static JsonObject getTokenFile() {
+        JsonObject tokenJson = null;
+        try {
+            tokenJson = Utilities.getJsonObject(new File("token.json"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return tokenJson;
+    }
+
+    static void respond(DiscordClient client, String incoming, String response) {
+        client.getEventDispatcher()
+                .on(MessageCreateEvent.class)
+                .map(MessageCreateEvent::getMessage)
+                .filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
+                .filter(message -> message.getContent().orElse("").equalsIgnoreCase(incoming))
+                .flatMap(Message::getChannel)
+                .flatMap(channel -> channel.createMessage(response))
+                .subscribe();
+    }
+
+    static void pingToPong(DiscordClient client) {
+        client.getEventDispatcher()
+                /**This listens for all MessageCreateEvents that come in to the bot.*/
+                .on(MessageCreateEvent.class)
+
+                /**This turns all MessageCreate events into the messages that were sent.
+                 * The :: syntax is just shorthand for map(event -> event.getMessage()).*/
+                .map(MessageCreateEvent::getMessage)
+
+                /**This filters out all members that are bots, so that we only get events from users.*/
+                .filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
+
+                /**This filters out any messages that don't equal the content !ping.*/
+                .filter(message -> message.getContent().orElse("").equalsIgnoreCase("!ping"))
+
+                /**This turns it into the channel the message came from.*/
+                .flatMap(Message::getChannel)
+
+                /**This creates the message with the content Pong!*/
+                .flatMap(channel -> channel.createMessage("Pong!"))
+
+                /**And this tells it to execute!*/
+                .subscribe();
+
+    }
+
+    static void logEverything(DiscordClient client) {
+        client.getEventDispatcher().on(MessageCreateEvent.class) // This listens for all events that are of MessageCreateEvent
+                .subscribe(event ->
+                        event.getMessage()
+                                .getContent()
+                                .ifPresent(c ->
+                                        logger.info(event.getMessage().getAuthor().get().getUsername() + ": " + c)));// "subscribe" is the method you need to call to actually make sure that it's doing something.
+
     }
 
 

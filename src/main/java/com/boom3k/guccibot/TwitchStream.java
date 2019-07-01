@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TwitchStream extends  TwitchUser{
+public class TwitchStream extends TwitchUser {
 
     private String game;
     private int viewers;
@@ -15,12 +15,17 @@ public class TwitchStream extends  TwitchUser{
     private String streamType;
     private String status;
 
-    TwitchStream(String userName) throws Exception {
+    TwitchStream(String userName) {
         super(userName);
-        Map<String,String> parameters = new HashMap<>();
-        parameters.put("client_id",Bot.getTokenFile().get("twitch_client_id").getAsString());
-        JsonObject jsonObject = Rest.sendGet("https://api.twitch.tv/kraken/streams/" + userName,parameters);
-        if(jsonObject.get("stream").toString().equalsIgnoreCase("null")){
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("client_id", Bot.getTokenFile().get("twitch_client_id").getAsString());
+        JsonObject jsonObject = null;
+        try {
+            jsonObject = Rest.sendGet("https://api.twitch.tv/kraken/streams/" + userName, parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (jsonObject.get("stream").toString().equalsIgnoreCase("null")) {
             System.out.println(userName + " is not currently streaming!");
             return;
         }

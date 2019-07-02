@@ -21,21 +21,11 @@ public class Main {
         System.setProperty("current.date.time", dateFormat.format(new Date()));
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         Bot.initializeClient();
-        //TwitchStream stream = new TwitchStream("boom3k");
+        //TwitchStream stream = new TwitchStream("wurk");
         //System.out.println(stream.getGame());
 
-    }
-
-    static JsonObject getTokenFile() {
-        JsonObject tokenJson = null;
-        try {
-            tokenJson = Utilities.getJsonObject(new File("token.json"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return tokenJson;
     }
 
     static void explainReact() {

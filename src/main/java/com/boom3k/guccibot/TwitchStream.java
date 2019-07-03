@@ -18,17 +18,20 @@ public class TwitchStream extends TwitchUser {
     TwitchStream(String userName) {
         super(userName);
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("client_id", Bot.getTokenFile().get("twitch_client_id").getAsString());
+        parameters.put("client_id", Bot.TOKENFILE.get("twitch_client_id").getAsString());
         JsonObject jsonObject = null;
+
         try {
             jsonObject = Rest.sendGet("https://api.twitch.tv/kraken/streams/" + userName, parameters);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         if (jsonObject.get("stream").toString().equalsIgnoreCase("null")) {
             System.out.println(userName + " is not currently streaming!");
             return;
         }
+
         JsonObject stream = jsonObject.getAsJsonObject("stream");
         JsonObject channel = stream.getAsJsonObject("channel");
         this.game = stream.get("game").getAsString();

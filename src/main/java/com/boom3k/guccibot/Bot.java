@@ -5,8 +5,9 @@ import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import org.apache.log4j.Logger;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,27 +15,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bot {
 
     static Logger logger = Logger.getLogger(Bot.class);
-    final static JsonObject TOKENFILE = getTokenFile();
-    private static final Map<String, Command> commands = new HashMap<>();
-
-    static {
-
-
-
-        Command command;
-        commands.put("this", event -> event.getMessage().getChannel()
-                .flatMap(channel -> channel.createMessage("dick!"))
-                .then());
-
-        commands.put("dog", event -> event.getMessage().getChannel()
-                .flatMap(channel -> channel.createMessage("Streaming!"))
-                .then());
-    }
-
+    final static JsonObject TOKENFILE = Utilities.getJsonObject(new File("token.json"));
 
     static void initializeClient() {
 
@@ -46,27 +33,68 @@ public class Bot {
                     System.out.println("Logged in as: " + self.getUsername());
                 });
 
+        /**On Message Create Event Handler**/
         client.getEventDispatcher().on(MessageCreateEvent.class)
-                .flatMap(event ->
-                        Mono.justOrEmpty(event.getMessage().getContent())
-                                .flatMap(content -> Flux.fromIterable(commands.entrySet())
-                                        .filter(entry -> content.startsWith('!' + entry.getKey()))//Command set as "!"
-                                        .flatMap(entry -> entry.getValue().execute(event))
-                                        .next())).subscribe();
+                /**Transform event -> into a messageContent Mono*/
+                .flatMap(event -> {
+                            User user = event.getMessage().getAuthor().get();
+                            Guild guild = event.getMessage().getGuild().block();
+                            GuildChannel channel = guild.getChannelById(event.getMessage().getChannelId()).block();
+
+                            if (!event.getMessage().getContent().get().startsWith("!")) {
+                                System.out.println("Ignoring message from [" + user.getUsername() + "]" +
+                                        " in channel <"+guild.getName()+"."+channel.getName()+">");
+                                return Mono.just("");
+                            }
+                            /**If message was sent by bot, return nothing**/
+                            if (event.getMessage().getAuthor().get().isBot()) {
+                                System.out.println("** Ignoring message from bot [" +
+                                        event.getMessage().getAuthor().get().getUsername()
+                                        + "]\n");
+                                return Mono.just("");
+
+                            }
+
+
+                            System.out.println("* Step 1:: Message author == " + user.getUsername());
+                            /**Return a mono**/
+                            return Mono.justOrEmpty(event.getMessage().getContent())
+                                    /**Transform messageContent Mono -> Flux Stream**/
+                                    .flatMap(messageContent -> {
+                                        System.out.println("** Step 2:: MessageContent == " + messageContent);
+
+                                        /**Return a Flux**/
+                                        return Flux
+                                                /**set Flux to iterate through BotCommand Entries**/
+                                                .fromIterable(BotCommands.getCommands().entrySet())
+
+                                                /**Foreach BotCommand Entry..**/
+                                                .filter(currentEntry -> {
+                                                    System.out.println("*** Step 3:: Searching for command == " + currentEntry.getKey());
+                                                    /**If the messageContent starts with '!{currentEntry.key}'**/
+                                                    return messageContent.startsWith('!' + currentEntry.getKey());
+                                                })
+                                                /**Return the Value of the BotCommands Key**/
+                                                .flatMap(entry -> {
+                                                    System.out.println("*** Step 3:: messageContent matches [" + entry.getKey() + "] command!");
+                                                    String argument = messageContent.replace("!"+ entry.getKey(),"").stripLeading().stripTrailing();
+                                                    BotCommands.setArgument(argument);
+                                                    /****/
+                                                    System.out.println("*** Passing [" + entry.getKey() + ".command] " +
+                                                            " to <" + guild.getName() + "." + channel.getName() + ">");
+
+                                                    return entry.getValue().execute(event);
+                                                })
+                                                /****/
+                                                .next();
+                                    });
+                        }
+
+                )/****/
+                .subscribe();
 
         client.login().block();
 
-    }
-
-
-    static JsonObject getTokenFile() {
-        JsonObject tokenJson = null;
-        try {
-            tokenJson = Utilities.getJsonObject(new File("token.json"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return tokenJson;
     }
 
     static void logEverything(DiscordClient client) {

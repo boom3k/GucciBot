@@ -75,13 +75,13 @@ public class Utilities {
      * @param jsonFile the jsonFile that will be turned into a JsonObject
      * @return a JsonObject
      */
-    public static JsonObject getJsonObject(File jsonFile) throws FileNotFoundException {
-        return getJsonObject(new BufferedReader(new FileReader(jsonFile)));
-
-    }
-
-    public static String getJsonElementStringFromFile(File jsonFile, String jsonElement) throws FileNotFoundException {
-        return getJsonObject(new java.io.File(jsonFile.getPath())).get(jsonElement).toString().replace("\"", "");
+    public static JsonObject getJsonObject(File jsonFile) {
+        try {
+            return getJsonObject(new BufferedReader(new FileReader(jsonFile)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -91,6 +91,12 @@ public class Utilities {
     public static JsonObject getJsonObject(BufferedReader reader) {
         return (JsonObject) new JsonParser().parse(reader);
     }
+
+    public static String getJsonElementStringFromFile(File jsonFile, String jsonElement) throws FileNotFoundException {
+        return getJsonObject(new java.io.File(jsonFile.getPath())).get(jsonElement).toString().replace("\"", "");
+    }
+
+
 
     public static String encodeString(String trueString) {
         return Base64.getEncoder().encodeToString(trueString.getBytes());

@@ -11,7 +11,7 @@ public class TwitchUser {
 
     public TwitchUser(String userName)  {
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("client_id", Bot.getTokenFile().get("twitch_client_id").getAsString());
+        parameters.put("client_id", Bot.TOKENFILE.get("twitch_client_id").getAsString());
         JsonObject jsonObject = null;
         try {
             jsonObject = Rest.sendGet("https://api.twitch.tv/kraken/users/" + userName, parameters);

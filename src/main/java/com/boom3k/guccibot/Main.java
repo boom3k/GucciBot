@@ -21,7 +21,8 @@ public class Main {
         System.setProperty("current.date.time", dateFormat.format(new Date()));
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
+
         Bot.initializeClient();
         //TwitchStream stream = new TwitchStream("wurk");
         //System.out.println(stream.getGame());
@@ -85,5 +86,29 @@ public class Main {
                 .subscribe(System.out::println); // prints "Hello"
         System.out.println("**************END FilterWhen**************\n");
     }
+
+    static void java12StringMethods(){String rawString = "   !Twitch Boom3k   ";
+        String string2 = rawString;
+        String string3 = rawString;
+        String string4 = rawString;
+
+        System.out.println("rawString == \""+rawString+"\"");
+
+        System.out.println("rawString.strip() == \"" + rawString.strip() + "\"");
+
+        System.out.println("rawString.startsWith(\"!Twitch\") == \"" + string2.startsWith("!Twitch") + "\"");
+        System.out.println("rawString.startsWith(\"   \") == \"" + string2.startsWith("   ") + "\"");
+        System.out.println("rawString.startsWith(\"Boom3k\") == \"" + string2.startsWith("Boom") + "\"");
+        System.out.println();
+
+
+        System.out.println("rawString.endsWith(\"Boom3k\") == \"" + string2.endsWith("Boom3k") + "\"");
+        System.out.println("rawString.endsWith(\"   \") == \"" + string2.endsWith("   ") + "\"");
+
+
+        System.out.println();
+
+        System.out.println("rawString.stripLeading() == \"" + string3.stripLeading() + "\"");
+        System.out.println("rawString.stripTrailing() == \"" + string4.stripTrailing() + "\"");}
 
 }

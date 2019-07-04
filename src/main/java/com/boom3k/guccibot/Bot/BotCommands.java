@@ -1,6 +1,5 @@
 package com.boom3k.guccibot.Bot;
 
-import com.boom3k.guccibot.Models.EventProperties;
 import com.boom3k.guccibot.Models.TwitchStream;
 import com.boom3k.guccibot.Util.Utilities;
 
@@ -15,28 +14,30 @@ public class BotCommands {
 
     BotCommands() {
 
-        commands.put("this", event -> event.getMessage().getChannel()
-                .flatMap(messageChannel -> messageChannel.createMessage("dick!")).then());
+        commands.put("about", event -> event.getMessage().getChannel()
+                .flatMap(messageChannel -> messageChannel.createMessage(
+                        "This Bot was developed by Boom3k.\n" +
+                        "Source code can be found at https://github.com/boom3k/guccibot")).then());
 
         commands.put("twitch", event -> {
             return event.getMessage().getChannel()
                     .flatMap(messageChannel -> {
-                        String message = "!twitch - ";
+                        String message = "";
                         if (argument == null || argument == "") {
                             return messageChannel.createMessage(message + "argument cannot be empty");
                         }
 
                         if (Utilities.containsIllegalChars(argument)) {
-                            return messageChannel.createMessage(message + " " + argument + " contains illegal characters, please try again");
+                            return messageChannel.createMessage(message + "Provided username contains illegal characters, please try again.");
                         }
 
                         TwitchStream twitchStream = new TwitchStream(argument);
-                        message += twitchStream.getUserName();
-
-                        if (twitchStream.getUserName() == null) {
-                            message += "User not found, please try again";
+                        if(twitchStream.getUserName() == null){
+                            message += "Twitch user ["+argument+"] not found. Please try again!";
                             return messageChannel.createMessage(message);
                         }
+                        message += twitchStream.getUserName();
+
                         if (twitchStream.getStreamType() == null) {
                             message += " is currently offline.";
                             return messageChannel.createMessage(message);
@@ -62,14 +63,7 @@ public class BotCommands {
                             messageChannel.createMessage(message[0]).then());
         });
 
-        commands.put("me",
-                event -> {
-                    EventProperties eventProperties = new EventProperties(event, "meCall");
-                    return event.getMessage()
-                            .getChannel()
-                            .flatMap(messageChannel ->
-                                    messageChannel.createMessage(eventProperties.getUser().toString()).then());
-                });
+
     }
 
     public static BotCommands getInstance() {

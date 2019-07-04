@@ -142,5 +142,10 @@ public class Utilities {
         return Arrays.stream(illegalChars).parallel().anyMatch(inputStr::contains);
     }
 
+    /*public static Map<String, String> instantToTimeMap(Instant instant){
+        Map<String,String> timeMap = new HashMap<>();
+        String instantString = instant.toString();
+    }*/
+
 
 }

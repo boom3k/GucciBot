@@ -3,33 +3,44 @@ package com.boom3k.guccibot.Models;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.GuildChannel;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
+import org.apache.log4j.Logger;
+
+import java.util.Date;
 
 public class EventProperties {
 
+
+    Logger logger = Logger.getLogger(EventProperties.class);
     User user;
     Guild guild;
     GuildChannel guildChannel;
+    Message message;
     String messageContent;
+    Date timeStamp;
     Object eventAction;
 
     public EventProperties(MessageCreateEvent event, String eventAction) {
         this.user = event.getMessage().getAuthor().get();
         this.guild = event.getMessage().getGuild().block();
         this.guildChannel = guild.getChannelById(event.getMessage().getChannelId()).block();
-        this.messageContent = event.getMessage().getContent().get();
+        this.message = event.getMessage();
+        this.messageContent = message.getContent().get();
+        this.timeStamp = Date.from(message.getTimestamp());
         this.eventAction = eventAction;
     }
 
-    public void printEventProperties(){
-        System.out.println("Message content: " + this.messageContent);
-        System.out.println("Message Action: " + this.eventAction);
-        System.out.println("User Name:" + this.user.getUsername());
-        System.out.println("User ID: " + this.user.getId());
-        System.out.println("Guild Name: " + this.guild.getName());
-        System.out.println("Guild ID: " + this.guild.getId());
-        System.out.println("Channel Name: " + this.guildChannel.getName());
-        System.out.println("Channel ID: " + this.guildChannel.getId() +"\n");
+    public void printEventProperties() {
+
+        String msg = "\n********* Message at " + timeStamp + "* *******";
+        msg += "\nMessage content: " + this.messageContent + " (" + this.getEventAction() + ")";
+        msg += "\nUser: " + this.user.getUsername() + " <" + this.user.getId() + ">";
+        msg += "\nGuild : " + this.guild.getName() + " <" + this.guild.getId() + ">";
+        msg += "\nChannel : " + this.guildChannel.getName() + " <" + this.guildChannel.getId() + ">";
+        msg += "\n**************************************************\n";
+        logger.info(msg);
+
     }
 
     public User getUser() {

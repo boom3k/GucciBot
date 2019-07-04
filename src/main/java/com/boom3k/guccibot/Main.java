@@ -1,12 +1,12 @@
 package com.boom3k.guccibot;
 
-import com.boom3k.guccibot.Bot.Bot;
+import com.boom3k.guccibot.Bot.BotClient;
 import org.apache.log4j.Logger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 public class Main {
 
@@ -19,11 +19,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
-        Bot.initializeClient();
-        //TwitchStream stream = new TwitchStream("wurk");
-        //System.out.println(stream.getGame());
-
+        BotClient.initializeClient();
     }
 
     static void explainReact() {
@@ -84,12 +80,13 @@ public class Main {
         System.out.println("**************END FilterWhen**************\n");
     }
 
-    static void java12StringMethods(){String rawString = "   !Twitch Boom3k   ";
+    static void java12StringMethods() {
+        String rawString = "   !Twitch Boom3k   ";
         String string2 = rawString;
         String string3 = rawString;
         String string4 = rawString;
 
-        System.out.println("rawString == \""+rawString+"\"");
+        System.out.println("rawString == \"" + rawString + "\"");
 
         System.out.println("rawString.strip() == \"" + rawString.strip() + "\"");
 
@@ -106,6 +103,7 @@ public class Main {
         System.out.println();
 
         System.out.println("rawString.stripLeading() == \"" + string3.stripLeading() + "\"");
-        System.out.println("rawString.stripTrailing() == \"" + string4.stripTrailing() + "\"");}
+        System.out.println("rawString.stripTrailing() == \"" + string4.stripTrailing() + "\"");
+    }
 
 }

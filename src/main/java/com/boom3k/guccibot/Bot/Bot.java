@@ -1,29 +1,28 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Bot;
 
+import com.boom3k.guccibot.Models.EventProperties;
+import com.boom3k.guccibot.Util.Utilities;
 import com.google.gson.JsonObject;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.*;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.GuildChannel;
+import discord4j.core.object.entity.User;
 import org.apache.log4j.Logger;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bot {
 
     static Logger logger = Logger.getLogger(Bot.class);
-    final static JsonObject TOKENFILE = Utilities.getJsonObject(new File("token.json"));
+    public final static JsonObject TOKENFILE = Utilities.getJsonObject(new File("token.json"));
 
-    static void initializeClient() {
+    public static void initializeClient() {
+
 
         DiscordClient client = new DiscordClientBuilder(TOKENFILE.get("token").getAsString()).build();
 
@@ -37,13 +36,10 @@ public class Bot {
         client.getEventDispatcher().on(MessageCreateEvent.class)
                 /**Transform event -> into a messageContent Mono*/
                 .flatMap(event -> {
-                            User user = event.getMessage().getAuthor().get();
-                            Guild guild = event.getMessage().getGuild().block();
-                            GuildChannel channel = guild.getChannelById(event.getMessage().getChannelId()).block();
+                            EventProperties eventPropeties = new EventProperties(event,"initializing");
 
                             if (!event.getMessage().getContent().get().startsWith("!")) {
-                                System.out.println("Ignoring message from [" + user.getUsername() + "]" +
-                                        " in channel <"+guild.getName()+"."+channel.getName()+">");
+                                eventPropeties.printEventProperties();
                                 return Mono.just("");
                             }
                             /**If message was sent by bot, return nothing**/
@@ -56,7 +52,7 @@ public class Bot {
                             }
 
 
-                            System.out.println("* Step 1:: Message author == " + user.getUsername());
+                            System.out.println("* Step 1:: Message author == " + eventPropeties.getUser().getUsername());
                             /**Return a mono**/
                             return Mono.justOrEmpty(event.getMessage().getContent())
                                     /**Transform messageContent Mono -> Flux Stream**/
@@ -77,12 +73,10 @@ public class Bot {
                                                 /**Return the Value of the BotCommands Key**/
                                                 .flatMap(entry -> {
                                                     System.out.println("*** Step 3:: messageContent matches [" + entry.getKey() + "] command!");
-                                                    String argument = messageContent.replace("!"+ entry.getKey(),"").stripLeading().stripTrailing();
+                                                    String argument = messageContent.replace("!" + entry.getKey(), "").stripLeading().stripTrailing();
                                                     BotCommands.setArgument(argument);
-                                                    /****/
-                                                    System.out.println("*** Passing [" + entry.getKey() + ".command] " +
-                                                            " to <" + guild.getName() + "." + channel.getName() + ">");
-
+                                                    eventPropeties.setEventAction(entry.getValue());
+                                                    eventPropeties.printEventProperties();
                                                     return entry.getValue().execute(event);
                                                 })
                                                 /****/
@@ -96,6 +90,16 @@ public class Bot {
         client.login().block();
 
     }
+
+    static void messageCreateEventToJson(MessageCreateEvent event) {
+        JsonObject jsonObject = new JsonObject();
+        User user = event.getMessage().getAuthor().get();
+        Guild guild = event.getMessage().getGuild().block();
+        GuildChannel channel = guild.getChannelById(event.getMessage().getChannelId()).block();
+        String messageString = event.getMessage().getContent().get();
+
+    }
+
 
     static void logEverything(DiscordClient client) {
         client.getEventDispatcher().on(MessageCreateEvent.class) // This listens for all events that are of MessageCreateEvent

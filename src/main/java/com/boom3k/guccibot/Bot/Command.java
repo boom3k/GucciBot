@@ -1,4 +1,4 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Bot;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import reactor.core.publisher.Mono;

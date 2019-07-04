@@ -1,13 +1,10 @@
 package com.boom3k.guccibot;
 
-import com.google.gson.JsonObject;
+import com.boom3k.guccibot.Bot.Bot;
 import org.apache.log4j.Logger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 

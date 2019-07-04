@@ -1,4 +1,4 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

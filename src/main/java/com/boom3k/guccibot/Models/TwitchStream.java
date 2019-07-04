@@ -1,8 +1,8 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Models;
 
+import com.boom3k.guccibot.Bot.Bot;
+import com.boom3k.guccibot.Util.Rest;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class TwitchStream extends TwitchUser {
     private String streamType;
     private String status;
 
-    TwitchStream(String userName) {
+    public TwitchStream(String userName) {
         super(userName);
         Map<String, String> parameters = new HashMap<>();
         parameters.put("client_id", Bot.TOKENFILE.get("twitch_client_id").getAsString());

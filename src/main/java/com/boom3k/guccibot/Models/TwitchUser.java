@@ -1,11 +1,13 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Models;
 
+import com.boom3k.guccibot.Bot.Bot;
+import com.boom3k.guccibot.Util.Rest;
 import com.google.gson.JsonObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TwitchUser {
+public abstract class TwitchUser {
 
     private String userName;
 

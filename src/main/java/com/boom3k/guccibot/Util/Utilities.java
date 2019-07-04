@@ -1,4 +1,4 @@
-package com.boom3k.guccibot;
+package com.boom3k.guccibot.Util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -96,8 +97,6 @@ public class Utilities {
         return getJsonObject(new java.io.File(jsonFile.getPath())).get(jsonElement).toString().replace("\"", "");
     }
 
-
-
     public static String encodeString(String trueString) {
         return Base64.getEncoder().encodeToString(trueString.getBytes());
     }
@@ -136,6 +135,11 @@ public class Utilities {
     static public void kill() {
         logger.info("***Application terminated***");
         System.exit(0);
+    }
+
+    public static boolean containsIllegalChars(String inputStr) {
+        String[] illegalChars = {"~","#","@","*","+","%","{","}","<",">","[","]","|","“","”","\\","^"};
+        return Arrays.stream(illegalChars).parallel().anyMatch(inputStr::contains);
     }
 
 
